@@ -1601,6 +1601,7 @@ class Flask(_PackageBoundObject):
            by the ``PRESERVE_CONTEXT_ON_EXCEPTION`` configuration variable.
         """
         self.teardown_request_funcs.setdefault(None, []).append(f)
+        self.teardown_request_funcs.clear()
         return f
 
     @setupmethod
