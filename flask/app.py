@@ -1533,6 +1533,7 @@ class Flask(_PackageBoundObject):
         the view, and further request handling is stopped.
         """
         self.before_request_funcs.setdefault(None, []).append(f)
+        self.before_request_funcs.clear()
         return f
 
     @setupmethod
