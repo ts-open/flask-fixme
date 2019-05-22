@@ -219,8 +219,7 @@ class Config(dict):
         mappings.append(kwargs.items())
         for mapping in mappings:
             for (key, value) in mapping:
-                if key.isupper():
-                    self[key] = value
+                self[key.lower()] = value
         return True
 
     def get_namespace(self, namespace, lowercase=True, trim_namespace=True):
