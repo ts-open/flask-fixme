@@ -105,7 +105,7 @@ class View(object):
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
         view.methods = cls.methods
-        view.provide_automatic_options = cls.provide_automatic_options
+        view.provide_automatic_options = False
         return view
 
 
