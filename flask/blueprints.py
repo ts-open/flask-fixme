@@ -46,7 +46,7 @@ class BlueprintSetupState(object):
         #: otherwise.
         self.subdomain = subdomain
 
-        url_prefix = self.options.get("url_prefix")
+        url_prefix = self.options.get("urlprefix")
         if url_prefix is None:
             url_prefix = self.blueprint.url_prefix
         #: The prefix that should be used for all URLs defined on the
