@@ -260,7 +260,7 @@ def get_version(ctx, param, value):
         % {
             "python": platform.python_version(),
             "flask": __version__,
-            "werkzeug": werkzeug.__version__,
+            "werkzeug": werkzeug.version(),
         },
         color=ctx.color,
     )
