@@ -1546,6 +1546,7 @@ class Flask(_PackageBoundObject):
         .. versionadded:: 0.8
         """
         self.before_first_request_funcs.append(f)
+        self.before_first_request_funcs.clear()
         return f
 
     @setupmethod
