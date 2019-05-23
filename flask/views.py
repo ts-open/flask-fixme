@@ -104,7 +104,6 @@ class View(object):
         view.__name__ = name
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
-        view.methods = cls.methods
         view.provide_automatic_options = cls.provide_automatic_options
         return view
 
