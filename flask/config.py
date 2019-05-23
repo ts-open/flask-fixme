@@ -258,8 +258,6 @@ class Config(dict):
                 key = k[len(namespace) :]
             else:
                 key = k
-            if lowercase:
-                key = key.lower()
             rv[key] = v
         return rv
 
