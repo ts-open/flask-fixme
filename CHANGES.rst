@@ -4,11 +4,13 @@ Flask Changelog
 ===============
 
 
-Version 1.1
------------
+Version 1.1.0
+-------------
 
 Unreleased
 
+-   Bump minimum Werkzeug version to >= 0.15.
+-   Drop support for Python 3.4.
 -   :meth:`flask.RequestContext.copy` includes the current session
     object in the request context copy. This prevents ``session``
     pointing to an out-of-date object. (`#2935`_)
@@ -20,17 +22,44 @@ Unreleased
     (`#3059`_)
 -   :func:`send_file` supports :class:`~io.BytesIO` partial content.
     (`#2957`_)
+-   :func:`open_resource` accepts the "rt" file mode. This still does
+    the same thing as "r". :issue:`3163`
+-   The :attr:`MethodView.methods` attribute set in a base class is used
+    by subclasses. :issue:`3138`
+-   :attr:`Flask.jinja_options` is a ``dict`` instead of an
+    ``ImmutableDict`` to allow easier configuration. Changes must still
+    be made before creating the environment. :pr:`3190`
+-   Flask's ``JSONMixin`` for the request and response wrappers was
+    moved into Werkzeug. Use Werkzeug's version with Flask-specific
+    support. This bumps the Werkzeug dependency to >= 0.15.
+    :issue:`3125`
+-   The ``flask`` command entry point is simplified to take advantage
+    of Werkzeug 0.15's better reloader support. This bumps the Werkzeug
+    dependency to >= 0.15. :issue:`3022`
+-   Support ``static_url_path`` that ends with a forward slash.
+    :issue:`3134`
+-   :meth:`jsonify` supports :class:`dataclasses.dataclass` objects.
+    :pr:`3195`
+-   Allow customizing the :attr:`Flask.url_map_class` used for routing.
+    :pr:`3069`
+-   The development server port can be set to 0, which tells the OS to
+    pick an available port. :issue:`2926`
+-   The return value from :meth:`cli.load_dotenv` is more consistent
+    with the documentation. It will return ``False`` if python-dotenv is
+    not installed, or if the given path isn't a file. :issue:`2937`
 
 .. _#2935: https://github.com/pallets/flask/issues/2935
 .. _#2957: https://github.com/pallets/flask/issues/2957
 .. _#2994: https://github.com/pallets/flask/pull/2994
 .. _#3059: https://github.com/pallets/flask/pull/3059
+.. _#3179: https://github.com/pallets/flask/pull/3179
+.. _#3125: https://github.com/pallets/flask/pull/3125
 
 
 Version 1.0.3
 -------------
 
-Unreleased
+Released 2019-05-17
 
 -   :func:`send_file` encodes filenames as ASCII instead of Latin-1
     (ISO-8859-1). This fixes compatibility with Gunicorn, which is
@@ -46,10 +75,13 @@ Unreleased
     handle ``RoutingException``, which is used internally during
     routing. This fixes the unexpected behavior that had been introduced
     in 1.0. (`#2986`_)
+-   Passing the ``json`` argument to ``app.test_client`` does not
+    push/pop an extra app context. (`#2900`_)
 
 .. _#2766: https://github.com/pallets/flask/issues/2766
 .. _#2765: https://github.com/pallets/flask/pull/2765
 .. _#2825: https://github.com/pallets/flask/pull/2825
+.. _#2900: https://github.com/pallets/flask/issues/2900
 .. _#2933: https://github.com/pallets/flask/issues/2933
 .. _#2986: https://github.com/pallets/flask/pull/2986
 
@@ -57,7 +89,7 @@ Unreleased
 Version 1.0.2
 -------------
 
-Released on May 2nd 2018
+Released 2018-05-02
 
 -   Fix more backwards compatibility issues with merging slashes between
     a blueprint prefix and route. (`#2748`_)
@@ -71,7 +103,7 @@ Released on May 2nd 2018
 Version 1.0.1
 -------------
 
-Released on April 29th 2018
+Released 2018-04-29
 
 -   Fix registering partials (with no ``__name__``) as view functions.
     (`#2730`_)
@@ -97,7 +129,7 @@ Released on April 29th 2018
 Version 1.0
 -----------
 
-Released on April 26th 2018
+Released 2018-04-26
 
 -   **Python 2.6 and 3.3 are no longer supported.** (`pallets/meta#24`_)
 -   Bump minimum dependency versions to the latest stable versions:

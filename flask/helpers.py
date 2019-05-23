@@ -275,7 +275,7 @@ def url_for(endpoint, **values):
     :param values: the variable arguments of the URL rule
     :param _external: if set to ``True``, an absolute URL is generated. Server
       address can be changed via ``SERVER_NAME`` configuration variable which
-      defaults to `localhost`.
+      falls back to the `Host` header, then to the IP and port of the request.
     :param _scheme: a string specifying the desired URL scheme. The `_external`
       parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default
       behavior uses the same scheme as the current request, or
@@ -1050,10 +1050,12 @@ class _PackageBoundObject(object):
 
         :param resource: the name of the resource.  To access resources within
                          subfolders use forward slashes as separator.
-        :param mode: resource file opening mode, default is 'rb'.
+        :param mode: Open file in this mode. Only reading is supported,
+            valid values are "r" (or "rt") and "rb".
         """
-        if mode not in ("r", "rb"):
+        if mode not in {"r", "rt", "rb"}:
             raise ValueError("Resources can only be opened for reading")
+
         return open(os.path.join(self.root_path, resource), mode)
 
 

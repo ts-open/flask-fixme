@@ -104,7 +104,7 @@ class View(object):
         view.__name__ = name
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
-        view.provide_automatic_options = cls.provide_automatic_options
+        view.provide_automatic_options = False
         return view
 
 
@@ -118,6 +118,10 @@ class MethodViewType(type):
 
         if "methods" not in d:
             methods = set()
+
+            for base in bases:
+                if getattr(base, "methods", None):
+                    methods.update(base.methods)
 
             for key in http_method_funcs:
                 if hasattr(cls, key):

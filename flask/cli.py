@@ -598,6 +598,10 @@ def load_dotenv(path=None):
     :param path: Load the file at this location instead of searching.
     :return: ``True`` if a file was loaded.
 
+    .. versionchanged:: 1.1.0
+        Returns ``False`` when python-dotenv is not installed, or when
+        the given path isn't a file.
+
     .. versionadded:: 1.0
     """
     if dotenv is None:
@@ -607,10 +611,16 @@ def load_dotenv(path=None):
                 ' Do "pip install python-dotenv" to use them.',
                 fg="yellow",
             )
-        return
 
+        return False
+
+    # if the given path specifies the actual file then return True,
+    # else False
     if path is not None:
-        return dotenv.load_dotenv(path)
+        if os.path.isfile(path):
+            return dotenv.load_dotenv(path)
+
+        return False
 
     new_dir = None
 
@@ -650,11 +660,9 @@ def show_server_banner(env, debug, app_import_path, eager_loading):
 
     if env == "production":
         click.secho(
-            "   WARNING: Do not use the development server in a production"
-            " environment.",
-            fg="red",
-        )
-        click.secho("   Use a production WSGI server instead.", dim=True)
+            '   WARNING: This is a development server. '
+            'Do not use it in a production deployment.', fg='red')
+        click.secho('   Use a production WSGI server instead.', dim=True)
 
     if debug is not None:
         click.echo(" * Debug mode: {0}".format("on" if debug else "off"))
@@ -909,23 +917,7 @@ debug mode.
 
 
 def main(as_module=False):
-    args = sys.argv[1:]
-
-    if as_module:
-        this_module = "flask"
-
-        if sys.version_info < (2, 7):
-            this_module += ".cli"
-
-        name = "python -m " + this_module
-
-        # Python rewrites "python -m flask" to the path to the file in argv.
-        # Restore the original command so that the reloader works.
-        sys.argv = ["-m", this_module] + args
-    else:
-        name = None
-
-    cli.main(args=args, prog_name=name)
+    cli.main(prog_name="python -m flask" if as_module else None)
 
 
 if __name__ == "__main__":

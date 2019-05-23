@@ -298,10 +298,16 @@ class Flask(_PackageBoundObject):
     #: .. versionadded:: 0.10
     json_decoder = json.JSONDecoder
 
-    #: Options that are passed directly to the Jinja2 environment.
-    jinja_options = ImmutableDict(
-        extensions=["jinja2.ext.autoescape", "jinja2.ext.with_"]
-    )
+    #: Options that are passed to the Jinja environment in
+    #: :meth:`create_jinja_environment`. Changing these options after
+    #: the environment is created (accessing :attr:`jinja_env`) will
+    #: have no effect.
+    #:
+    #: .. versionchanged:: 1.1.0
+    #:     This is a ``dict`` instead of an ``ImmutableDict`` to allow
+    #:     easier configuration.
+    #:
+    jinja_options = {"extensions": ["jinja2.ext.autoescape", "jinja2.ext.with_"]}
 
     #: Default configuration parameters.
     default_config = ImmutableDict(
@@ -343,6 +349,12 @@ class Flask(_PackageBoundObject):
     #:
     #: .. versionadded:: 0.7
     url_rule_class = Rule
+
+    #: The map object to use for storing the URL rules and routing
+    #: configuration parameters. Defaults to :class:`werkzeug.routing.Map`.
+    #:
+    #: .. versionadded:: 1.1.0
+    url_map_class = Map
 
     #: the test client that is used with when `test_client` is used.
     #:
@@ -561,7 +573,7 @@ class Flask(_PackageBoundObject):
         #:
         #:    app = Flask(__name__)
         #:    app.url_map.converters['list'] = ListConverter
-        self.url_map = Map()
+        self.url_map = self.url_map_class()
 
         self.url_map.host_matching = host_matching
         self.subdomain_matching = subdomain_matching
@@ -581,7 +593,7 @@ class Flask(_PackageBoundObject):
                 bool(static_host) == host_matching
             ), "Invalid static_host/host_matching combination"
             self.add_url_rule(
-                self.static_url_path + "/<path:filename>",
+                self.static_url_path.rstrip("/") + "/<path:filename>",
                 endpoint="static",
                 host=static_host,
                 view_func=self.send_static_file,
@@ -662,7 +674,12 @@ class Flask(_PackageBoundObject):
 
     @locked_cached_property
     def jinja_env(self):
-        """The Jinja2 environment used to load templates."""
+        """The Jinja environment used to load templates.
+
+        The environment is created the first time this property is
+        accessed. Changing :attr:`jinja_options` after that will have no
+        effect.
+        """
         return self.create_jinja_environment()
 
     @property
@@ -739,15 +756,16 @@ class Flask(_PackageBoundObject):
     del _get_templates_auto_reload, _set_templates_auto_reload
 
     def create_jinja_environment(self):
-        """Creates the Jinja2 environment based on :attr:`jinja_options`
-        and :meth:`select_jinja_autoescape`.  Since 0.7 this also adds
-        the Jinja2 globals and filters after initialization.  Override
-        this function to customize the behavior.
+        """Create the Jinja environment based on :attr:`jinja_options`
+        and the various Jinja-related methods of the app. Changing
+        :attr:`jinja_options` after this will have no effect. Also adds
+        Flask-related globals and filters to the environment.
 
-        .. versionadded:: 0.5
         .. versionchanged:: 0.11
            ``Environment.auto_reload`` set in accordance with
            ``TEMPLATES_AUTO_RELOAD`` configuration option.
+
+        .. versionadded:: 0.5
         """
         options = dict(self.jinja_options)
 
@@ -954,7 +972,8 @@ class Flask(_PackageBoundObject):
             sn_host, _, sn_port = server_name.partition(":")
 
         host = host or sn_host or _host
-        port = int(port or sn_port or _port)
+        # pick the first value that's not None (0 is allowed)
+        port = int(next((p for p in (port, sn_port) if p is not None), _port))
 
         options.setdefault("use_reloader", self.debug)
         options.setdefault("use_debugger", self.debug)
@@ -1514,6 +1533,7 @@ class Flask(_PackageBoundObject):
         the view, and further request handling is stopped.
         """
         self.before_request_funcs.setdefault(None, []).append(f)
+        self.before_request_funcs.clear()
         return f
 
     @setupmethod
@@ -1527,6 +1547,7 @@ class Flask(_PackageBoundObject):
         .. versionadded:: 0.8
         """
         self.before_first_request_funcs.append(f)
+        self.before_first_request_funcs.clear()
         return f
 
     @setupmethod
@@ -1580,6 +1601,7 @@ class Flask(_PackageBoundObject):
            by the ``PRESERVE_CONTEXT_ON_EXCEPTION`` configuration variable.
         """
         self.teardown_request_funcs.setdefault(None, []).append(f)
+        self.teardown_request_funcs.clear()
         return f
 
     @setupmethod

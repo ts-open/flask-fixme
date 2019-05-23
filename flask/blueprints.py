@@ -10,7 +10,6 @@
     :license: BSD, see LICENSE for more details.
 """
 from functools import update_wrapper
-from werkzeug.urls import url_join
 
 from .helpers import _PackageBoundObject, _endpoint_from_view_func
 
@@ -198,7 +197,7 @@ class Blueprint(_PackageBoundObject):
 
         if self.has_static_folder:
             state.add_url_rule(
-                self.static_url_path + "/<path:filename>",
+                self.static_url_path.rstrip("/") + "/<path:filename>",
                 view_func=self.send_static_file,
                 endpoint="static",
             )
