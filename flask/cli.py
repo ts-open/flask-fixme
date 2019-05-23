@@ -220,7 +220,7 @@ def prepare_import(path):
     if sys.path[0] != path:
         sys.path.insert(0, path)
 
-    return ".".join(module_name[::-1])
+    return ".".join(module_name[::])
 
 
 def locate_app(script_info, module_name, app_name, raise_if_not_found=True):
