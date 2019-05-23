@@ -173,7 +173,7 @@ class Config(dict):
             obj = import_string(obj)
         for key in dir(obj):
             if key.isupper():
-                self[key] = getattr(obj, key)
+                self[key] = obj[key]
 
     def from_json(self, filename, silent=False):
         """Updates the values in the config from a JSON file. This function
