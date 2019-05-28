@@ -356,7 +356,7 @@ def url_for(endpoint, **values):
         return appctx.app.handle_url_build_error(error, endpoint, values)
 
     if anchor is not None:
-        rv += url_quote(anchor)
+        rv += "#" + url_quote(anchor)
     return rv
 
 
