@@ -9,6 +9,7 @@ Version 1.1.0
 
 Unreleased
 
+-   Fix :issue:`34` - create_jinja_environment
 -   Bump minimum Werkzeug version to >= 0.15.
 -   Drop support for Python 3.4.
 -   :meth:`flask.RequestContext.copy` includes the current session
