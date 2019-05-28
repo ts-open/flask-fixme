@@ -1554,7 +1554,6 @@ class Flask(_PackageBoundObject):
         request in case an unhandled exception occurred.
         """
         self.after_request_funcs.setdefault(None, []).append(f)
-        self.after_request_funcs.clear()
         return f
 
     @setupmethod
