@@ -38,6 +38,8 @@ Unreleased
     dependency to >= 0.15. :issue:`3022`
 -   Support ``static_url_path`` that ends with a forward slash.
     :issue:`3134`
+-   Support empty ``static_folder`` without requiring setting an empty
+    ``static_url_path`` as well. :pr:`3124`
 -   :meth:`jsonify` supports :class:`dataclasses.dataclass` objects.
     :pr:`3195`
 -   Allow customizing the :attr:`Flask.url_map_class` used for routing.
@@ -47,6 +49,21 @@ Unreleased
 -   The return value from :meth:`cli.load_dotenv` is more consistent
     with the documentation. It will return ``False`` if python-dotenv is
     not installed, or if the given path isn't a file. :issue:`2937`
+-   Signaling support has a stub for the ``connect_via`` method when
+    the Blinker library is not installed. :pr:`3208`
+-   Add an ``--extra-files`` option to the ``flask run`` CLI command to
+    specify extra files that will trigger the reloader on change.
+    :issue:`2897`
+-   Allow returning a dictionary from a view function. Similar to how
+    returning a string will produce a ``text/html`` response, returning
+    a dict will call ``jsonify`` to produce a ``application/json``
+    response. :pr:`3111`
+-   Blueprints have a ``cli`` Click group like ``app.cli``. CLI commands
+    registered with a blueprint will be available as a group under the
+    ``flask`` command. :issue:`1357`.
+-   When using the test client as a context manager (``with client:``),
+    all preserved request contexts are popped when the block exits,
+    ensuring nested contexts are cleaned up correctly. :pr:`3157`
 
 .. _#2935: https://github.com/pallets/flask/issues/2935
 .. _#2957: https://github.com/pallets/flask/issues/2957
@@ -84,7 +101,6 @@ Released 2019-05-17
 .. _#2900: https://github.com/pallets/flask/issues/2900
 .. _#2933: https://github.com/pallets/flask/issues/2933
 .. _#2986: https://github.com/pallets/flask/pull/2986
-
 
 Version 1.0.2
 -------------

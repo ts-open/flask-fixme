@@ -1147,8 +1147,12 @@ def test_response_types(app, client):
     def from_wsgi():
         return NotFound()
 
-    assert client.get("/text").data == u"Hällo Wörld".encode("utf-8")
-    assert client.get("/bytes").data == u"Hällo Wörld".encode("utf-8")
+    @app.route('/dict')
+    def from_dict():
+        return {"foo": "bar"}, 201
+
+    assert client.get('/text').data == u'Hällo Wörld'.encode('utf-8')
+    assert client.get('/bytes').data == u'Hällo Wörld'.encode('utf-8')
 
     rv = client.get("/full_tuple")
     assert rv.data == b"Meh"
@@ -1180,6 +1184,10 @@ def test_response_types(app, client):
     rv = client.get("/wsgi")
     assert b"Not Found" in rv.data
     assert rv.status_code == 404
+
+    rv = client.get('/dict')
+    assert rv.json == {"foo": "bar"}
+    assert rv.status_code == 201
 
 
 def test_response_type_errors():
@@ -1417,6 +1425,20 @@ def test_static_url_path_with_ending_slash():
 
     with app.test_request_context():
         assert flask.url_for("static", filename="index.html") == "/foo/index.html"
+
+
+def test_static_url_empty_path(app):
+    app = flask.Flask(__name__, static_folder='', static_url_path='')
+    rv = app.test_client().open('/static/index.html', method='GET')
+    assert rv.status_code == 200
+    rv.close()
+
+
+def test_static_url_empty_path_default(app):
+    app = flask.Flask(__name__, static_folder='')
+    rv = app.test_client().open('/static/index.html', method='GET')
+    assert rv.status_code == 200
+    rv.close()
 
 
 def test_static_route_with_host_matching():

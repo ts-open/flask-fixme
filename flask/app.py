@@ -44,6 +44,7 @@ from .helpers import (
     url_for,
     get_load_dotenv,
 )
+from .json import jsonify
 from .logging import create_logger
 from .sessions import SecureCookieSessionInterface
 from .signals import (
@@ -407,11 +408,8 @@ class Flask(_PackageBoundObject):
             self, import_name, template_folder=template_folder, root_path=root_path
         )
 
-        if static_url_path is not None:
-            self.static_url_path = static_url_path
-
-        if static_folder is not None:
-            self.static_folder = static_folder
+        self.static_url_path = static_url_path
+        self.static_folder = static_folder
 
         if instance_path is None:
             instance_path = self.auto_find_instance_path()
@@ -593,19 +591,15 @@ class Flask(_PackageBoundObject):
                 bool(static_host) == host_matching
             ), "Invalid static_host/host_matching combination"
             self.add_url_rule(
-                self.static_url_path.rstrip("/") + "/<path:filename>",
+                self.static_url_path + "/<path:filename>",
                 endpoint="static",
                 host=static_host,
                 view_func=self.send_static_file,
             )
 
-        #: The click command line context for this application.  Commands
-        #: registered here show up in the :command:`flask` command once the
-        #: application has been discovered.  The default commands are
-        #: provided by Flask itself and can be overridden.
-        #:
-        #: This is an instance of a :class:`click.Group` object.
-        self.cli = cli.AppGroup(self.name)
+        # Set the name of the Click group in case someone wants to add
+        # the app's commands to another CLI tool.
+        self.cli.name = self.name
 
     @locked_cached_property
     def name(self):
@@ -2005,6 +1999,9 @@ class Flask(_PackageBoundObject):
             ``bytes`` (``str`` in Python 2)
                 A response object is created with the bytes as the body.
 
+            ``dict``
+                A dictionary that will be jsonify'd before being returned.
+
             ``tuple``
                 Either ``(body, status, headers)``, ``(body, status)``, or
                 ``(body, headers)``, where ``body`` is any of the other types
@@ -2068,6 +2065,8 @@ class Flask(_PackageBoundObject):
                 # special logic
                 rv = self.response_class(rv, status=status, headers=headers)
                 status = headers = None
+            elif isinstance(rv, dict):
+                rv = jsonify(rv)
             else:
                 # evaluate a WSGI callable, or coerce a different response
                 # class to the correct type

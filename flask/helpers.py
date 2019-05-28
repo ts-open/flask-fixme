@@ -939,6 +939,15 @@ class _PackageBoundObject(object):
         self._static_folder = None
         self._static_url_path = None
 
+        # circular import
+        from .cli import AppGroup
+
+        #: The Click command group for registration of CLI commands
+        #: on the application and associated blueprints. These commands
+        #: are accessible via the :command:`flask` command once the
+        #: application has been discovered and blueprints registered.
+        self.cli = AppGroup()
+
     def _get_static_folder(self):
         if self._static_folder is not None:
             return os.path.join(self.root_path, self._static_folder)
@@ -953,22 +962,26 @@ class _PackageBoundObject(object):
     )
     del _get_static_folder, _set_static_folder
 
-    def _get_static_url_path(self):
+    @property
+    def static_url_path(self):
+        """The URL prefix that the static route will be accessible from.
+
+        If it was not configured during init, it is derived from
+        :attr:`static_folder`.
+        """
         if self._static_url_path is not None:
             return self._static_url_path
 
         if self.static_folder is not None:
-            return "/" + os.path.basename(self.static_folder)
+            basename = os.path.basename(self.static_folder)
+            return ("/" + basename).rstrip("/")
 
-    def _set_static_url_path(self, value):
+    @static_url_path.setter
+    def static_url_path(self, value):
+        if value is not None:
+            value = value.rstrip("/")
+
         self._static_url_path = value
-
-    static_url_path = property(
-        _get_static_url_path,
-        _set_static_url_path,
-        doc="The URL prefix that the static route will be registered for.",
-    )
-    del _get_static_url_path, _set_static_url_path
 
     @property
     def has_static_folder(self):
