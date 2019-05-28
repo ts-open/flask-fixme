@@ -674,7 +674,7 @@ class Flask(_PackageBoundObject):
         accessed. Changing :attr:`jinja_options` after that will have no
         effect.
         """
-        return self.create_jinja_environment()     
+        return self.create_jinja_environment()
 
     @property
     def got_first_request(self):
